@@ -1,0 +1,22 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, avg
+
+# Criar uma sessão Spark
+spark = SparkSession.builder.appName(BikeTripsAnalysis).getOrCreate()
+
+# Carregar o dataset (substitua 'pathtodataset.csv' pelo caminho do seu arquivo)
+df = spark.read.csv(pathtodataset.csv, header=True, inferSchema=True)
+
+# Calcular a duração média das viagens
+df = df.withColumn(trip_duration, (col(stop_time).cast(long) - col(start_time).cast(long))  60)
+avg_trip_duration = df.select(avg(trip_duration)).collect()[0][0]
+
+# Exibir as 10 viagens mais lentas
+slowest_trips = df.orderBy(col(trip_duration).desc()).limit(10)
+
+# Mostrar os resultados
+print(fDuração média das viagens {avg_trip_duration} minutos)
+slowest_trips.show()
+
+# Parar a sessão Spark
+spark.stop()
