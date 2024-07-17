@@ -1,0 +1,17 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import count
+
+# Inicializar a sessão Spark
+spark = SparkSession.builder.appName("GenderDistributionAnalysis").getOrCreate()
+
+# Carregar os dados em um DataFrame
+trips_df = spark.read.csv("newyork_citibikes_trips.csv", header=True, inferSchema=True)
+
+# Calcular a distribuição entre gêneros
+gender_distribution = trips_df.groupBy("gender").agg(count("gender").alias("count"))
+
+# Mostrar os resultados
+gender_distribution.show()
+
+# Parar a sessão Spark
+spark.stop()
