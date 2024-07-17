@@ -1,0 +1,23 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import avg
+
+# Inicializar a sessão Spark
+spark = SparkSession.builder.appName("NewYorkTripsAnalysis").getOrCreate()
+
+# Carregar os dados em um DataFrame
+trips_df = spark.read.csv("newyork_citibikes_trips.csv", header=True, inferSchema=True)
+
+# Remover viagens sem duração
+trips_df = trips_df.filter("tripduration > 0")
+
+# Calcular a duração média das viagens para cada par de estações
+average_durations = trips_df.groupBy("start_station_id", "end_station_id").agg(avg("tripduration").alias("average_duration"))
+
+# Ordenar os resultados pela duração média em ordem decrescente e pegar as 10 mais lentas
+slowest_station_pairs = average_durations.orderBy("average_duration", ascending=False).limit(10)
+
+# Mostrar os resultados
+slowest_station_pairs.show()
+
+# Parar a sessão Spark
+spark.stop()
