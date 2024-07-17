@@ -1,0 +1,26 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+# Inicializar a sessão Spark
+spark = SparkSession.builder.appName("NewYorkTripsAnalysis").getOrCreate()
+
+# Carregar o esquema dos dados do arquivo JSON fornecido
+schema_json = spark.read.json("bq_newyork_trips_schema.json")
+
+# Supondo que os dados reais estejam em um arquivo CSV chamado "newyork_trips.csv" e usando o esquema do arquivo JSON
+# Carregar os dados em um DataFrame
+trips_df = spark.read.csv("newyork_trips.csv", header=True, schema=schema_json.schema)
+
+# Calcular a duração média das viagens
+average_duration = trips_df.agg({"tripduration": "avg"}).collect()[0][0]
+
+# Encontrar as 10 viagens mais lentas
+slowest_trips = trips_df.orderBy(col("tripduration").asc()).limit(10)
+
+# Mostrar os resultados
+print(f"A duração média das viagens é: {average_duration} segundos")
+print("As 10 viagens mais lentas são:")
+slowest_trips.show()
+
+# Parar a sessão Spark
+spark.stop()
