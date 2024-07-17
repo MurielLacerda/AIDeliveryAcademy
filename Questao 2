@@ -7,9 +7,8 @@ spark = SparkSession.builder.appName("NewYorkTripsAnalysis").getOrCreate()
 # Carregar o esquema dos dados do arquivo JSON fornecido
 schema_json = spark.read.json("bq_newyork_trips_schema.json")
 
-# Supondo que os dados reais estejam em um arquivo CSV chamado "newyork_trips.csv" e usando o esquema do arquivo JSON
-# Carregar os dados em um DataFrame
-trips_df = spark.read.csv("newyork_trips.csv", header=True, schema=schema_json.schema)
+# Carregar os dados em um DataFrame usando o arquivo CSV correto
+trips_df = spark.read.csv("newyork_citibikes_trips.csv", header=True, schema=schema_json.schema)
 
 # Remover viagens sem duração
 trips_df = trips_df.filter(col("tripduration").isNotNull() & (col("tripduration") > 0))
